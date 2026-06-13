@@ -1,0 +1,120 @@
+@model Webbanhang_TH02.Models.Order
+@{
+    ViewData["Title"] = "Đặt hàng thành công!";
+    var product = ViewBag.Product as Webbanhang_TH02.Models.Product;
+    string paymentLabel = ViewBag.PaymentMethod switch
+    {
+        "transfer" => "Chuyển khoản ngân hàng",
+        "ewallet"  => "Ví điện tử (Momo / ZaloPay)",
+        _          => "Thanh toán khi nhận hàng (COD)"
+    };
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <!-- Success Card -->
+            <div class="success-card text-center">
+                <div class="success-icon-ring mb-4">
+                    <i class="bi bi-bag-check-fill success-icon"></i>
+                </div>
+                <h2 class="success-title">Đặt hàng thành công!</h2>
+                <p class="success-subtitle text-muted">Cảm ơn bạn đã tin tưởng mua sắm tại Mỹ phẩm Hồng Diễm.<br>Đơn hàng của bạn đang được xử lý.</p>
+
+                <div class="order-code-badge my-4">
+                    <span class="order-code-label">Mã đơn hàng</span>
+                    <strong class="order-code-value">@ViewBag.OrderCode</strong>
+                    <span class="order-code-date">@ViewBag.OrderDate</span>
+                </div>
+
+                <hr class="separator-luxury my-4" />
+
+                <!-- Product Info -->
+                @if (Model != null && Model.OrderItems.Any())
+                {
+                    <div class="mb-4" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <div class="d-flex align-items-center justify-content-between mb-3 pb-2" style="border-bottom: 1px dashed #ebdcd5;">
+                                <div class="d-flex align-items-center text-start">
+                                    <img src="@item.ProductImageUrl" alt="@item.ProductName" class="rounded" style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ebdcd5; margin-right: 15px;"
+                                         onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                                    <div>
+                                        <strong class="d-block" style="color: #2a201c; font-family: var(--font-heading); font-size: 0.95rem;">@item.ProductName</strong>
+                                        <span class="text-muted small">Số lượng: @item.Quantity x @string.Format("{0:N0}", item.Price) đ</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <strong class="text-luxury-primary" style="font-size: 0.95rem;">@string.Format("{0:N0}", item.Price * item.Quantity) đ</strong>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4 p-3" style="background-color: #f6ebe6; border-radius: 10px;">
+                        <strong style="color: #2a201c; font-family: var(--font-heading);">Tổng thanh toán:</strong>
+                        <strong class="text-luxury-primary fs-5">@string.Format("{0:N0}", Model.TotalAmount) đ</strong>
+                    </div>
+                }
+                else if (product != null)
+                {
+                    <div class="success-product-row mb-4">
+                        <img src="@product.ImageUrl" alt="@product.Name" class="success-product-img"
+                             onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                        <div class="success-product-info text-start">
+                            <span class="product-brand d-block">@product.Brand</span>
+                            <strong class="d-block">@product.Name</strong>
+                            <span class="text-muted small">Số lượng: @ViewBag.Quantity</span>
+                        </div>
+                        <div class="success-product-price text-end">
+                            @{
+                                int qty = Convert.ToInt32(ViewBag.Quantity);
+                                decimal total = product.Price * qty;
+                            }
+                            <strong class="text-luxury-primary">@string.Format("{0:N0}", total) đ</strong>
+                        </div>
+                    </div>
+                }
+
+                <!-- Order Details -->
+                <div class="order-detail-table mb-4">
+                    <div class="order-detail-row">
+                        <span><i class="bi bi-person me-2 text-muted"></i>Người nhận</span>
+                        <strong>@ViewBag.CustomerName</strong>
+                    </div>
+                    <div class="order-detail-row">
+                        <span><i class="bi bi-telephone me-2 text-muted"></i>Số điện thoại</span>
+                        <strong>@ViewBag.Phone</strong>
+                    </div>
+                    <div class="order-detail-row">
+                        <span><i class="bi bi-geo-alt me-2 text-muted"></i>Địa chỉ giao</span>
+                        <strong>@ViewBag.Address</strong>
+                    </div>
+                    <div class="order-detail-row">
+                        <span><i class="bi bi-credit-card me-2 text-muted"></i>Thanh toán</span>
+                        <strong>@paymentLabel</strong>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ViewBag.Note as string))
+                    {
+                        <div class="order-detail-row">
+                            <span><i class="bi bi-chat-dots me-2 text-muted"></i>Ghi chú</span>
+                            <strong>@ViewBag.Note</strong>
+                        </div>
+                    }
+                </div>
+
+                <div class="success-shipping-note mb-5">
+                    <i class="bi bi-truck me-2"></i>Dự kiến giao hàng trong <strong>2 - 4 ngày làm việc</strong>
+                </div>
+
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-luxury-primary px-5">
+                        <i class="bi bi-shop me-2"></i>Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Không có quyền truy cập";
+}
+
+<div class="container my-5 text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-5 bg-white" style="border-radius: 15px; border: 1px solid #ebdcd5;">
+                <div class="mb-4">
+                    <i class="bi bi-shield-lock-fill display-1" style="color: #8d5b4c;"></i>
+                </div>
+                <h2 style="font-family: var(--font-heading); color: #2a201c;">Không Có Quyền Truy Cập!</h2>
+                <p class="text-muted mt-3">Rất tiếc! Khu vực hoặc chức năng này yêu cầu quyền quản trị viên (Admin). Tài khoản của bạn không được phân quyền để thực hiện hành động này.</p>
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-luxury-primary px-4">
+                        <i class="bi bi-shop me-2"></i>Quay lại Cửa hàng
+                    </a>
+                    @if (!User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-action="Login" class="btn btn-luxury-outline px-4">
+                            Đăng nhập tài khoản Admin
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

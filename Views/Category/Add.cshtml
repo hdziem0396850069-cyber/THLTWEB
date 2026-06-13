@@ -1,0 +1,37 @@
+@model Webbanhang_TH02.Models.Category
+@{
+    ViewData["Title"] = "Thêm danh mục mới";
+}
+
+<div class="container my-5" style="max-width: 600px;">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-luxury">
+            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Cửa hàng</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Quản lý danh mục</a></li>
+            <li class="breadcrumb-item active">Thêm danh mục</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm p-4 bg-white" style="border-radius: 15px; border: 1px solid #ebdcd5;">
+        <h3 class="text-center mb-4" style="color: #8d5b4c; font-family: var(--font-heading); font-weight: bold;">THÊM DANH MỤC MỚI</h3>
+        
+        <form asp-controller="Category" asp-action="Add" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="mb-4">
+                <label asp-for="Name" class="form-label fw-bold" style="color: #2a201c;">Tên danh mục</label>
+                <input asp-for="Name" class="form-control py-2" placeholder="Ví dụ: Dưỡng môi, Tẩy trang..." style="border-radius: 8px;" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="btn btn-luxury-primary flex-grow-1 py-2">
+                    <i class="bi bi-check2-circle me-1"></i> Thêm mới
+                </button>
+                <a asp-action="Index" class="btn btn-luxury-outline flex-grow-1 py-2" style="background-color: #fff; border: 1px solid #ebdcd5; color: #8d5b4c;">
+                    Hủy bỏ
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

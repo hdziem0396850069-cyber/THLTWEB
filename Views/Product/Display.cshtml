@@ -1,0 +1,121 @@
+@model Webbanhang_TH02.Models.Product
+@{
+    ViewData["Title"] = Model.Name + " - Chi tiết sản phẩm";
+    var categoryName = ViewBag.CategoryName as string ?? "Mỹ phẩm";
+}
+
+<div class="container my-5">
+    <div class="card-detail-luxury">
+        <div class="row g-0">
+            <!-- Left Side: Product Image -->
+            <div class="col-lg-6">
+                <div class="detail-img-wrapper h-100">
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="detail-img" onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                </div>
+            </div>
+            
+            <!-- Right Side: Product Details -->
+            <div class="col-lg-6">
+                <div class="detail-info-wrapper p-4 p-md-5">
+                    <div class="detail-header mb-4">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-luxury">
+                                <li class="breadcrumb-item"><a asp-action="Index">Cửa hàng</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">@categoryName</li>
+                            </ol>
+                        </nav>
+                        <span class="detail-brand">@Model.Brand</span>
+                        <h1 class="detail-title mt-2">@Model.Name</h1>
+                        
+                        <div class="detail-rating-row d-flex align-items-center gap-2 mt-2">
+                            <div class="rating-stars text-warning">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    if (i < Model.Rating)
+                                    {
+                                        <i class="bi bi-star-fill text-gold"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star text-muted"></i>
+                                    }
+                                }
+                            </div>
+                            <span class="rating-text text-muted">(@Model.Rating.0 / 5.0)</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-price-box mb-4">
+                        <span class="detail-price">@string.Format("{0:N0}", Model.Price) <span class="currency">đ</span></span>
+                        <span class="detail-stock"><i class="bi bi-check2-circle text-success me-1"></i> Còn hàng</span>
+                    </div>
+
+                    <hr class="separator-luxury my-4" />
+
+                    <div class="detail-body mb-4">
+                        <h4 class="detail-section-title">Mô tả sản phẩm</h4>
+                        <p class="detail-description mt-2">@Model.Description</p>
+                    </div>
+
+                    <hr class="separator-luxury my-4" />
+
+                    <!-- Actions -->
+                    <div class="detail-actions-wrapper d-flex flex-column gap-3">
+                        
+                        <!-- Customer Purchase Panel -->
+                        <div class="card p-3 border-0" style="border-radius: 15px; background-color: #f6ebe6; border: 1px solid #ebdcd5;">
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" id="addToCartForm">
+                                <input type="hidden" name="productId" value="@Model.Id" />
+                                
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <span class="fw-bold small" style="color: #72625c; letter-spacing: 0.5px;">SỐ LƯỢNG:</span>
+                                    <div class="qty-wrapper d-flex" style="border: 1px solid #ebdcd5; border-radius: 30px; overflow: hidden; background: #fff; height: 35px;">
+                                        <button type="button" class="qty-btn border-0 bg-transparent px-3" onclick="decreaseQty()"><i class="bi bi-dash"></i></button>
+                                        <input type="number" id="detailQty" name="quantity" value="1" min="1" max="99" style="width: 45px; border: none; text-align: center; font-weight: bold; color: #2a201c;" readonly />
+                                        <button type="button" class="qty-btn border-0 bg-transparent px-3" onclick="increaseQty()"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="button" onclick="buyNow()" class="btn btn-luxury-primary flex-grow-1 py-2" style="font-weight: 600;">
+                                        <i class="bi bi-bag-heart-fill me-2"></i> Mua ngay
+                                    </button>
+                                    <button type="submit" class="btn btn-luxury-outline flex-grow-1 py-2" style="background-color: #fff; border: 1px solid #ebdcd5; color: #8d5b4c; font-weight: 600;">
+                                        <i class="bi bi-bag-plus-fill me-2"></i> Thêm giỏ hàng
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                        {
+                            <div class="d-flex gap-2 mt-2">
+                                <a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-outline-primary flex-grow-1" style="border-radius: 20px;"><i class="bi bi-pencil-square me-2"></i> Chỉnh sửa</a>
+                                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger flex-grow-1" style="border-radius: 20px;"><i class="bi bi-trash me-2"></i> Xóa</a>
+                            </div>
+                        }
+
+                        <a asp-action="Index" class="btn btn-luxury-text text-center mt-2"><i class="bi bi-arrow-left me-2"></i> Quay lại danh sách cửa hàng</a>
+                    </div>
+
+                    <script>
+                        function increaseQty() {
+                            const input = document.getElementById('detailQty');
+                            let val = parseInt(input.value) || 1;
+                            if (val < 99) input.value = val + 1;
+                        }
+                        function decreaseQty() {
+                            const input = document.getElementById('detailQty');
+                            let val = parseInt(input.value) || 1;
+                            if (val > 1) input.value = val - 1;
+                        }
+                        function buyNow() {
+                            const qty = document.getElementById('detailQty').value;
+                            window.location.href = '@Url.Action("Checkout", "Order")?productId=@Model.Id&quantity=' + qty;
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

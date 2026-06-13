@@ -1,0 +1,157 @@
+@model IEnumerable<Webbanhang_TH02.Models.Order>
+@{
+    ViewData["Title"] = "Đơn hàng và Thành viên";
+    int points = ViewBag.Points ?? 0;
+    string tier = ViewBag.Tier ?? "Thành viên Đồng (Bronze)";
+    int nextTierPoints = ViewBag.NextTierPoints ?? 100;
+    string nextTierName = ViewBag.NextTierName ?? "";
+    int progress = ViewBag.Progress ?? 0;
+    decimal totalSpent = ViewBag.TotalSpent ?? 0m;
+}
+
+<div class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-luxury">
+            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Cửa hàng</a></li>
+            <li class="breadcrumb-item active">Tài khoản</li>
+        </ol>
+    </nav>
+
+    <!-- Premium Loyalty Membership Card -->
+    <div class="card border-0 shadow-sm p-4 p-md-5 mb-5 text-white position-relative overflow-hidden" 
+         style="border-radius: 20px; background: linear-gradient(135deg, #8d5b4c 0%, #c48a73 100%);">
+        
+        <!-- Subtle decorative glow -->
+        <div class="position-absolute" style="width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%; top: -50px; right: -50px;"></div>
+        
+        <div class="row align-items-center position-relative">
+            <div class="col-lg-7 mb-4 mb-lg-0">
+                <span class="badge px-3 py-2 text-uppercase mb-3" style="background-color: rgba(255,255,255,0.2); border-radius: 30px; letter-spacing: 1px; font-size: 0.8rem; font-weight: 600;">
+                    Chương trình Khách hàng thân thiết
+                </span>
+                <h1 class="text-white mb-2" style="font-family: var(--font-heading); font-weight: 800;">@User.Identity?.Name</h1>
+                <p class="text-white-50 mb-4">Cảm ơn bạn đã đồng hành cùng Mỹ phẩm Hồng Diễm. Mỗi 10,000đ mua sắm tích lũy tương đương với 1 điểm thưởng.</p>
+                
+                <div class="d-flex align-items-baseline gap-3 mb-2">
+                    <span class="fs-4 text-white-50">Hạng hiện tại:</span>
+                    <strong class="fs-3 text-warning" style="text-shadow: 0 2px 4px rgba(0,0,0,0.15);">@tier</strong>
+                </div>
+            </div>
+            
+            <div class="col-lg-5 text-lg-end">
+                <div class="p-4 rounded shadow-sm d-inline-block text-start w-100" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 15px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small text-white-50">ĐIỂM THƯỞNG TÍCH LŨY</span>
+                        <i class="bi bi-star-fill text-warning fs-5"></i>
+                    </div>
+                    <h2 class="text-white fw-bold mb-3" style="font-size: 2.2rem;">@points <span style="font-size: 1.1rem; font-weight: 500;" class="text-white-50">điểm</span></h2>
+                    
+                    @if (points < 600)
+                    {
+                        <div class="d-flex justify-content-between small text-white-50 mb-1">
+                            <span>Đã tích lũy @points/@nextTierPoints điểm</span>
+                            <span>Hạng tiếp theo: @nextTierName</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 10px; background-color: rgba(255,255,255,0.2);">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: @progress%; border-radius: 10px;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="text-white-50 small mt-2">
+                            Cần thêm <strong>@(nextTierPoints - points) điểm</strong> (tương ứng @string.Format("{0:N0}", (nextTierPoints - points) * 10000) đ) để nâng hạng!
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-warning small mt-2">
+                            <i class="bi bi-patch-check-fill me-1"></i> Bạn đã đạt cấp độ thành viên cao nhất!
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Orders List Section -->
+    <h3 class="checkout-page-title mb-4"><i class="bi bi-clock-history me-2"></i>Lịch sử đơn hàng của bạn</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 shadow-sm p-4 bg-white" style="border-radius: 15px; border: 1px solid #ebdcd5;">
+            <i class="bi bi-inbox display-2 text-muted"></i>
+            <h4 class="mt-3 text-dark" style="font-family: var(--font-heading);">Bạn chưa đặt đơn hàng nào</h4>
+            <p class="text-muted">Khi bạn đặt hàng thành công tại shop, các đơn hàng sẽ được hiển thị và quản lý tại đây.</p>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-luxury-primary px-4 py-2 mt-2">
+                <i class="bi bi-shop me-2"></i>Mua sắm ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var order in Model.OrderByDescending(o => o.OrderDate))
+            {
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 mb-3" style="border-radius: 15px; border: 1px solid #ebdcd5; overflow: hidden; background: #fff;">
+                        <!-- Card Header -->
+                        <div class="card-header border-0 d-flex flex-wrap justify-content-between align-items-center py-3 px-4" 
+                             style="background-color: #f6ebe6; border-bottom: 1px solid #ebdcd5;">
+                            <div>
+                                <span class="text-muted small">MÃ ĐƠN HÀNG:</span>
+                                <strong class="text-luxury-primary ms-1">@order.OrderCode</strong>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-calendar-event me-1"></i>Ngày đặt: @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+                        
+                        <!-- Card Body -->
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-7 mb-3 mb-md-0">
+                                    <h6 class="text-uppercase small text-muted font-weight-bold mb-3">Sản phẩm đặt mua</h6>
+                                    <ul class="list-unstyled mb-0">
+                                        @foreach (var item in order.OrderItems)
+                                        {
+                                            <tr class="align-middle">
+                                                <li class="d-flex align-items-center mb-2">
+                                                    <img src="@item.ProductImageUrl" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ebdcd5;" onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                                                    <div>
+                                                        <strong style="color: #2a201c;">@item.ProductName</strong>
+                                                        <span class="text-muted d-block small">@string.Format("{0:N0}", item.Price) đ x @item.Quantity</span>
+                                                    </div>
+                                                </li>
+                                            </tr>
+                                        }
+                                    </ul>
+                                </div>
+                                
+                                <div class="col-md-5 text-md-end border-start-md" style="border-left: 1px solid #f6ebe6;">
+                                    <div class="mb-2">
+                                        <span class="text-muted small">Phương thức:</span>
+                                        <span class="badge bg-light text-dark px-3 py-1 ms-1" style="border-radius: 10px; border: 1px solid #ebdcd5;">
+                                            @(order.PaymentMethod == "transfer" ? "Chuyển khoản" : (order.PaymentMethod == "ewallet" ? "Ví điện tử" : "COD"))
+                                        </span>
+                                    </div>
+                                    
+                                    @if (!string.IsNullOrEmpty(order.PromoCode))
+                                    {
+                                        <div class="small text-success mb-2">
+                                            <i class="bi bi-tag-fill me-1"></i>Khuyến mãi: -@string.Format("{0:N0}", order.DiscountAmount) đ (@order.PromoCode)
+                                        </div>
+                                    }
+
+                                    <div class="fs-5 fw-bold" style="color: #8d5b4c;">
+                                        Tổng thanh toán: @string.Format("{0:N0}", order.TotalAmount) đ
+                                    </div>
+                                    
+                                    <div class="small text-muted mt-2">
+                                        <i class="bi bi-geo-alt me-1"></i>Giao đến: @order.Address
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

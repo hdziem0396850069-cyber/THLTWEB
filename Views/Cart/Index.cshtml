@@ -1,0 +1,134 @@
+@model IEnumerable<Webbanhang_TH02.Models.CartItem>
+@{
+    ViewData["Title"] = "Giỏ hàng của bạn";
+    decimal totalAmount = Model.Sum(item => item.Product.Price * item.Quantity);
+}
+
+<div class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-luxury">
+            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Cửa hàng</a></li>
+            <li class="breadcrumb-item active">Giỏ hàng</li>
+        </ol>
+    </nav>
+
+    <h2 class="checkout-page-title mb-4"><i class="bi bi-bag-heart-fill me-2"></i>Giỏ hàng của bạn</h2>
+
+    @if (TempData["CartError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["CartError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 shadow-sm p-4 bg-white" style="border-radius: 15px;">
+            <i class="bi bi-bag-x-fill display-1" style="color: #c48a73;"></i>
+            <h3 class="mt-4" style="font-family: var(--font-heading);">Giỏ hàng của bạn đang trống</h3>
+            <p class="text-muted">Hãy lấp đầy giỏ hàng của bạn bằng những sản phẩm chăm sóc da và mỹ phẩm cao cấp nhé.</p>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-luxury-primary px-4 py-2 mt-2">
+                <i class="bi bi-shop me-2"></i>Khám phá cửa hàng ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Left: List of Cart Items -->
+            <div class="col-lg-8">
+                <div class="form-card-luxury p-3">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-borderless mb-0">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #ebdcd5; color: #72625c; font-weight: bold; font-size: 0.9rem;">
+                                    <th scope="col" colspan="2">SẢN PHẨM</th>
+                                    <th scope="col" class="text-center">ĐƠN GIÁ</th>
+                                    <th scope="col" class="text-center">SỐ LƯỢNG</th>
+                                    <th scope="col" class="text-end">TỔNG</th>
+                                    <th scope="col" class="text-center">XÓA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr style="border-bottom: 1px solid #f6ebe6;">
+                                        <td style="width: 100px; padding: 15px 0;">
+                                            <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="rounded" style="width: 80px; height: 80px; object-fit: cover; border: 1px solid #ebdcd5;" onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                                        </td>
+                                        <td style="padding: 15px;">
+                                            <span class="d-block text-muted small" style="letter-spacing: 0.5px; font-weight: 600; text-transform: uppercase;">@item.Product.Brand</span>
+                                            <strong class="d-block" style="color: #2a201c; font-family: var(--font-heading); font-size: 1.05rem;">@item.Product.Name</strong>
+                                        </td>
+                                        <td class="text-center" style="font-weight: 600; color: #2a201c;">
+                                            @string.Format("{0:N0}", item.Product.Price) đ
+                                        </td>
+                                        <td class="text-center">
+                                            <form asp-action="UpdateQuantity" method="post" class="d-flex justify-content-center align-items-center">
+                                                <input type="hidden" name="productId" value="@item.Product.Id" />
+                                                <div class="qty-wrapper d-inline-flex" style="border: 1px solid #ebdcd5; border-radius: 30px; overflow: hidden; height: 35px; background: #faf7f5;">
+                                                    <button type="submit" class="qty-btn" name="quantity" value="@(item.Quantity - 1)" style="border: none; background: transparent; width: 30px; display: flex; align-items: center; justify-content: center; color: #72625c; font-weight: bold;"><i class="bi bi-dash"></i></button>
+                                                    <input type="text" readonly value="@item.Quantity" style="width: 35px; text-align: center; border: none; background: transparent; font-weight: bold; color: #2a201c;" />
+                                                    <button type="submit" class="qty-btn" name="quantity" value="@(item.Quantity + 1)" style="border: none; background: transparent; width: 30px; display: flex; align-items: center; justify-content: center; color: #72625c; font-weight: bold;"><i class="bi bi-plus"></i></button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td class="text-end" style="font-weight: 700; color: #8d5b4c;">
+                                            @string.Format("{0:N0}", item.Product.Price * item.Quantity) đ
+                                        </td>
+                                        <td class="text-center">
+                                            <a asp-action="RemoveFromCart" asp-route-productId="@item.Product.Id" class="text-danger" style="font-size: 1.2rem; transition: var(--transition-smooth);" title="Xóa khỏi giỏ hàng">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3">
+                        <a asp-controller="Product" asp-action="Index" class="btn btn-luxury-outline-sm">
+                            <i class="bi bi-arrow-left me-1"></i>Tiếp tục chọn sản phẩm
+                        </a>
+                        <a asp-action="ClearCart" class="btn btn-luxury-text text-danger text-decoration-none font-weight-bold">
+                            <i class="bi bi-trash3 me-1"></i>Xóa sạch giỏ hàng
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Checkout Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary-card">
+                    <h5 class="checkout-section-title mb-4"><i class="bi bi-credit-card-2-front me-2"></i>Tóm tắt giỏ hàng</h5>
+                    
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span>Số lượng mặt hàng</span>
+                            <span class="fw-bold text-dark">@Model.Sum(i => i.Quantity) sản phẩm</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-success fw-bold">Miễn phí</span>
+                        </div>
+                        <hr class="separator-luxury my-2" />
+                        <div class="price-row price-total">
+                            <strong>Tổng thanh toán</strong>
+                            <strong class="total-amount" style="color: #8d5b4c;">@string.Format("{0:N0}", totalAmount) đ</strong>
+                        </div>
+                    </div>
+
+                    <a asp-controller="Order" asp-action="Checkout" class="btn-place-order mt-4 text-center text-white d-block text-decoration-none">
+                        <i class="bi bi-check2-circle me-2"></i>Tiến hành thanh toán
+                    </a>
+                    
+                    <div class="text-center mt-3 small text-muted">
+                        <i class="bi bi-shield-check text-success me-1"></i>Thanh toán an toàn & bảo mật 100%
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

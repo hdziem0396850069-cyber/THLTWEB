@@ -1,0 +1,216 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Http
+@inject Webbanhang_TH02.Repositories.ICategoryRepository CategoryRepo
+@{
+    var cartJson = Context.Session.GetString("Shopping_Cart");
+    var cartCount = 0;
+    if (!string.IsNullOrEmpty(cartJson))
+    {
+        var cartItems = System.Text.Json.JsonSerializer.Deserialize<List<Webbanhang_TH02.Models.CartItem>>(cartJson);
+        cartCount = cartItems?.Sum(i => i.Quantity) ?? 0;
+    }
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Mỹ phẩm Hồng Diễm</title>
+    
+    <!-- CSS BootStrap and Site Custom -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Premium Header and Sticky Glass Navigation -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-light navbar-luxury">
+            <div class="container">
+                <a class="navbar-brand navbar-brand-luxury" asp-area="" asp-controller="Product" asp-action="Index">
+                    HỒNG DIỄM<span>.</span>
+                </a>
+                
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-luxury" asp-area="" asp-controller="Product" asp-action="Index">Cửa hàng</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link nav-link-luxury dropdown-toggle" href="#" id="navbarCategoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Danh mục
+                            </a>
+                            <ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="navbarCategoryDropdown" style="border-radius: 10px;">
+                                <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="Index">Tất cả sản phẩm</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                @foreach (var cat in CategoryRepo.GetAllCategories())
+                                {
+                                    <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.Id">@cat.Name</a></li>
+                                }
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-luxury position-relative" asp-area="" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-bag-heart me-1"></i>Giỏ hàng
+                                @if (cartCount > 0)
+                                {
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.75rem;">
+                                        @cartCount
+                                    </span>
+                                }
+                            </a>
+                        </li>
+                        
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-luxury text-warning" asp-area="" asp-controller="Product" asp-action="Management"><i class="bi bi-gear-fill me-1"></i>QL Sản phẩm</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-luxury text-warning" asp-area="" asp-controller="Category" asp-action="Index"><i class="bi bi-tags-fill me-1"></i>QL Danh mục</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link nav-link-luxury text-warning" asp-area="" asp-controller="Order" asp-action="List"><i class="bi bi-receipt me-1"></i>QL Đơn hàng</a>
+                                </li>
+                            }
+                            <li class="nav-item dropdown">
+                                <a class="nav-link nav-link-luxury dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i>@User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" aria-labelledby="navbarUserDropdown" style="border-radius: 10px;">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="Management">Quản trị sản phẩm</a></li>
+                                        <li><a class="dropdown-item py-2" asp-controller="Category" asp-action="Index">Quản lý danh mục</a></li>
+                                        <li><a class="dropdown-item py-2" asp-controller="Order" asp-action="List">Quản lý đơn hàng</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
+                                    <li><a class="dropdown-item py-2" asp-controller="Order" asp-action="MyOrders">Đơn hàng & Thành viên</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item py-2 text-danger" asp-controller="Account" asp-action="Logout">Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-login px-3 py-2 text-decoration-none" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-register text-white px-3 py-2 text-decoration-none" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container-fluid p-0">
+        <main role="main" class="pb-5">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Luxury Footer Section -->
+    <footer class="footer-luxury text-center text-lg-start">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-center text-lg-start mb-3 mb-lg-0">
+                    <a class="navbar-brand navbar-brand-luxury text-white fs-4 d-inline-block mb-2" href="#">
+                        HỒNG DIỄM<span class="text-white">.</span>
+                    </a>
+                    <p class="mb-0 text-white-50 small">© 2026 Mỹ phẩm Hồng Diễm. Tất cả quyền được bảo lưu.</p>
+                </div>
+                <div class="col-lg-6 text-center text-lg-end">
+                    <div class="d-flex justify-content-center justify-content-lg-end gap-4 mb-3">
+                        <a asp-area="" asp-controller="Product" asp-action="Index" class="small">Cửa hàng</a>
+                        <a href="#" class="small">Điều khoản dịch vụ</a>
+                        <a href="#" class="small">Chính sách bảo mật</a>
+                    </div>
+                    <div class="d-flex justify-content-center justify-content-lg-end align-items-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="text-white small me-2">Chào, <strong class="text-gold">@User.Identity.Name</strong> (@(User.IsInRole("Admin") ? "Admin" : "Khách"))</span>
+                            <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-light px-3 py-2">
+                                Đăng xuất
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-login px-3 py-2">
+                                Đăng nhập
+                            </a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-register text-white px-3 py-2">
+                                Đăng ký
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Essential Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Cosmetic Toast Container -->
+    <div class="cosmetic-toast-container" id="cosmeticToastContainer"></div>
+
+    <script>
+        function buyProduct(productName) {
+            const container = document.getElementById('cosmeticToastContainer');
+            const toastId = 'toast-' + Date.now();
+            
+            const toastHtml = `
+                <div class="cosmetic-toast" id="${toastId}">
+                    <div class="toast-icon-wrapper">
+                        <i class="bi bi-bag-check-fill"></i>
+                    </div>
+                    <div class="toast-body">
+                        <div class="toast-title">Thêm thành công!</div>
+                        <div class="toast-message">Đã thêm <strong>${productName}</strong> vào giỏ hàng của bạn.</div>
+                    </div>
+                    <button class="toast-close" onclick="closeToast('${toastId}')" title="Đóng">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', toastHtml);
+            
+            setTimeout(() => {
+                const toastElement = document.getElementById(toastId);
+                if (toastElement) {
+                    toastElement.classList.add('show');
+                }
+            }, 50);
+            
+            setTimeout(() => {
+                closeToast(toastId);
+            }, 3500);
+        }
+        
+        function closeToast(id) {
+            const toastElement = document.getElementById(id);
+            if (toastElement) {
+                toastElement.classList.remove('show');
+                setTimeout(() => {
+                    toastElement.remove();
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>

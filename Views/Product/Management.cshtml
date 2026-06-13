@@ -1,0 +1,116 @@
+@model IEnumerable<Webbanhang_TH02.Models.Product>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    var categories = ViewBag.Categories as IEnumerable<Webbanhang_TH02.Models.Category> ?? new List<Webbanhang_TH02.Models.Category>();
+}
+
+<div class="container-fluid my-5 px-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-luxury mb-2">
+                    <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Cửa hàng</a></li>
+                    <li class="breadcrumb-item active">Quản trị</li>
+                </ol>
+            </nav>
+            <h2 class="checkout-page-title m-0"><i class="bi bi-box-seam-fill me-2"></i>Danh sách sản phẩm cửa hàng</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Product" asp-action="Add" class="btn btn-luxury-primary-sm">
+                <i class="bi bi-plus-circle me-1"></i> Thêm sản phẩm mới
+            </a>
+            <a asp-controller="Order" asp-action="List" class="btn btn-luxury-outline-sm">
+                <i class="bi bi-receipt me-1"></i> Quản lý đơn hàng
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 shadow-sm p-4 bg-white" style="border-radius: 15px;">
+            <i class="bi bi-bag-dash-fill display-2 text-muted"></i>
+            <h3 class="mt-3 text-dark" style="font-family: var(--font-heading);">Chưa có sản phẩm nào</h3>
+            <p class="text-muted">Cửa hàng hiện tại trống rỗng. Hãy thêm sản phẩm đầu tiên của bạn!</p>
+            <a asp-controller="Product" asp-action="Add" class="btn btn-luxury-primary mt-2">Thêm sản phẩm</a>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; background: #fff;">
+            <div class="table-responsive">
+                <table class="table align-middle table-hover mb-0">
+                    <thead style="background-color: #f6ebe6; color: #2a201c; font-family: var(--font-heading);">
+                        <tr>
+                            <th scope="col" class="py-3 ps-4" style="width: 80px;">ẢNH</th>
+                            <th scope="col" class="py-3">TÊN SẢN PHẨM</th>
+                            <th scope="col" class="py-3">THƯƠNG HIỆU</th>
+                            <th scope="col" class="py-3">DANH MỤC</th>
+                            <th scope="col" class="py-3 text-end">ĐƠN GIÁ</th>
+                            <th scope="col" class="py-3 text-center">ĐÁNH GIÁ</th>
+                            <th scope="col" class="py-3 text-center">NỔI BẬT</th>
+                            <th scope="col" class="py-3 pe-4 text-center" style="width: 150px;">HÀNH ĐỘNG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model)
+                        {
+                            var categoryName = categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Name ?? "Không xác định";
+                            <tr style="border-bottom: 1px solid #ebdcd5;">
+                                <td class="py-3 ps-4">
+                                    <img src="@product.ImageUrl" alt="@product.Name" class="rounded" style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ebdcd5;" onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                                </td>
+                                <td class="py-3 font-weight-bold" style="color: #2a201c; font-family: var(--font-heading); font-size: 1rem;">
+                                    <a asp-action="Display" asp-route-id="@product.Id" class="text-decoration-none text-dark" style="font-weight: 600;">@product.Name</a>
+                                </td>
+                                <td class="py-3 text-muted">
+                                    @product.Brand
+                                </td>
+                                <td class="py-3">
+                                    <span class="badge px-3 py-2" style="background-color: #f6ebe6; color: #8d5b4c; border-radius: 20px; font-weight: 500;">
+                                        @categoryName
+                                    </span>
+                                </td>
+                                <td class="py-3 text-end fw-bold text-luxury-primary">
+                                    @string.Format("{0:N0}", product.Price) đ
+                                </td>
+                                <td class="py-3 text-center text-warning">
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        if (i < product.Rating)
+                                        {
+                                            <i class="bi bi-star-fill text-gold"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-star text-muted"></i>
+                                        }
+                                    }
+                                </td>
+                                <td class="py-3 text-center">
+                                    @if (product.IsFeatured)
+                                    {
+                                        <span class="badge bg-success px-2 py-1" style="border-radius: 20px; font-size: 0.75rem;">Có</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary px-2 py-1" style="border-radius: 20px; font-size: 0.75rem;">Không</span>
+                                    }
+                                </td>
+                                <td class="py-3 pe-4 text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-action="Update" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary" style="border-radius: 15px;" title="Sửa">
+                                            <i class="bi bi-pencil-square"></i> Sửa
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger" style="border-radius: 15px;" title="Xóa">
+                                            <i class="bi bi-trash"></i> Xóa
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

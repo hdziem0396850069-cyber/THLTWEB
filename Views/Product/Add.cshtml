@@ -1,0 +1,114 @@
+@model Webbanhang_TH02.Models.Product
+@{
+    ViewData["Title"] = "Thêm Mỹ phẩm Mới";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-card-luxury">
+                <div class="form-header-luxury mb-4">
+                    <a asp-action="Index" class="btn-back"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    <h2 class="form-title-luxury mt-3">Thêm Mỹ Phẩm Mới</h2>
+                    <p class="form-subtitle-luxury text-muted">Vui lòng điền thông tin chi tiết để thêm sản phẩm mỹ phẩm mới vào cửa hàng.</p>
+                </div>
+
+                <form asp-action="Add" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger-custom mb-4" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group-luxury">
+                                <label asp-for="Name" class="form-label-luxury"></label>
+                                <input asp-for="Name" class="form-control-luxury" placeholder="Ví dụ: Serum Phục Hồi Da B5" />
+                                <span asp-validation-for="Name" class="text-danger-luxury"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group-luxury">
+                                <label asp-for="Brand" class="form-label-luxury"></label>
+                                <input asp-for="Brand" class="form-control-luxury" placeholder="Ví dụ: Hồng Diễm" />
+                                <span asp-validation-for="Brand" class="text-danger-luxury"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group-luxury">
+                                <label asp-for="Price" class="form-label-luxury"></label>
+                                <div class="input-group-luxury-wrapper">
+                                    <input asp-for="Price" class="form-control-luxury" type="number" step="1000" min="1000" placeholder="Nhập giá VNĐ" />
+                                    <span class="input-group-addon-luxury">đ</span>
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger-luxury"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group-luxury">
+                                <label asp-for="CategoryId" class="form-label-luxury"></label>
+                                <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select-luxury">
+                                    <option value="">-- Chọn Danh mục --</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger-luxury"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group-luxury">
+                                <label asp-for="ImageUrl" class="form-label-luxury"></label>
+                                <input asp-for="ImageUrl" class="form-control-luxury" placeholder="Ví dụ: /images/skincare_serum.jpg" />
+                                <span asp-validation-for="ImageUrl" class="text-danger-luxury"></span>
+                                <small class="form-text text-muted">Có thể dùng: /images/skincare_serum.jpg, /images/lipstick_matte.jpg, /images/eyeshadow_palette.jpg, /images/perfume_gold.jpg</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group-luxury">
+                                <label asp-for="Rating" class="form-label-luxury"></label>
+                                <select asp-for="Rating" class="form-select-luxury">
+                                    <option value="5">5 Sao ⭐⭐⭐⭐⭐</option>
+                                    <option value="4">4 Sao ⭐⭐⭐⭐</option>
+                                    <option value="3">3 Sao ⭐⭐⭐</option>
+                                    <option value="2">2 Sao ⭐⭐</option>
+                                    <option value="1">1 Sao ⭐</option>
+                                </select>
+                                <span asp-validation-for="Rating" class="text-danger-luxury"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group-luxury">
+                                <label asp-for="Description" class="form-label-luxury"></label>
+                                <textarea asp-for="Description" class="form-control-luxury" rows="4" placeholder="Nhập mô tả sản phẩm chi tiết..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger-luxury"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 my-3">
+                            <div class="form-check-luxury">
+                                <input asp-for="IsFeatured" class="form-check-input-luxury" id="IsFeaturedCheckbox" />
+                                <label class="form-check-label-luxury" for="IsFeaturedCheckbox">
+                                    <strong>Sản phẩm nổi bật (Featured Product)</strong>
+                                    <span class="d-block text-muted small">Tích chọn để hiển thị nhãn nổi bật trên danh sách sản phẩm.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-luxury mt-4">
+                        <button type="submit" class="btn btn-luxury-primary w-100 py-3">Thêm mới sản phẩm</button>
+                    </div>
+                    <button type="submit" class="btn text-white" style="background-color: #A37055; border-radius: 50px; padding: 10px 30px;">
+                        Thêm sản phẩm mới
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,138 @@
+@model IEnumerable<Webbanhang_TH02.Models.Product>
+@{
+    ViewData["Title"] = "Cửa hàng Mỹ phẩm Hồng Diễm";
+    var categories = ViewBag.Categories as IEnumerable<Webbanhang_TH02.Models.Category>;
+    var currentCategoryId = ViewBag.CurrentCategoryId as int?;
+}
+
+<!-- Hero Banner Section -->
+<div class="hero-banner mb-5">
+    <div class="row align-items-center h-100">
+        <div class="col-lg-6 hero-text-col ps-lg-5">
+            <span class="badge-premium mb-3">Premium Collection 2026</span>
+            <h1 class="hero-title mb-3">Hồng Diễm</h1>
+            <p class="hero-subtitle mb-4">Khơi dậy vẻ đẹp tự nhiên, thuần khiết từ sâu bên trong với bộ sưu tập mỹ phẩm hữu cơ cao cấp được chọn lọc tỉ mỉ.</p>
+            <div class="d-flex gap-3">
+                <a href="#store-grid" class="btn btn-luxury-primary">Mua ngay</a>
+                <a asp-action="Add" class="btn btn-luxury-outline"><i class="bi bi-plus-circle me-2"></i>Thêm sản phẩm</a>
+            </div>
+        </div>
+        <div class="col-lg-6 hero-img-col position-relative">
+            <div class="hero-img-wrapper">
+                <img src="/images/hero_banner.png" alt="Glow & Grace Banner" class="img-fluid hero-img rounded-glow" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5" id="store-grid">
+    <!-- Category & Filter Navigation -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <div class="category-nav-wrapper">
+            <a asp-action="Index" class="category-pill @(currentCategoryId == null ? "active" : "")">Tất cả</a>
+            @if (categories != null)
+            {
+                foreach (var cat in categories)
+                {
+                    <a asp-action="Index" asp-route-categoryId="@cat.Id" class="category-pill @(currentCategoryId == cat.Id ? "active" : "")">@cat.Name</a>
+                }
+            }
+        </div>
+        <div>
+            <a asp-action="Add" class="btn btn-luxury-primary-sm"><i class="bi bi-plus-lg me-1"></i> Thêm sản phẩm mới</a>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="row g-4">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="bi bi-bag-x display-1 text-muted"></i>
+                    <h3 class="mt-3 text-dark">Chưa có sản phẩm nào</h3>
+                    <p class="text-muted">Rất tiếc, hiện tại không có sản phẩm nào thuộc danh mục này.</p>
+                    <a asp-action="Add" class="btn btn-luxury-primary mt-2">Thêm sản phẩm đầu tiên</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            foreach (var product in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="product-card-luxury">
+                        @if (product.IsFeatured)
+                        {
+                            <span class="featured-badge">Bán chạy</span>
+                        }
+                        
+                        <div class="product-img-container">
+                            <img src="@product.ImageUrl" alt="@product.Name" class="product-img" onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                            <div class="product-action-overlay">
+                                <a asp-action="Display" asp-route-id="@product.Id" class="btn-overlay-circle" title="Xem chi tiết"><i class="bi bi-eye"></i></a>
+                                <a asp-controller="Order" asp-action="Checkout" asp-route-productId="@product.Id" class="btn-overlay-circle buy" title="Mua ngay"><i class="bi bi-bag-plus"></i></a>
+                                @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Update" asp-route-id="@product.Id" class="btn-overlay-circle edit" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@product.Id" class="btn-overlay-circle delete" title="Xóa"><i class="bi bi-trash"></i></a>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="product-info-container">
+                            <div class="brand-rating-row mb-1">
+                                <span class="product-brand">@product.Brand</span>
+                                <div class="rating-stars text-warning">
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        if (i < product.Rating)
+                                        {
+                                            <i class="bi bi-star-fill text-gold"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-star text-muted"></i>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            
+                            <h3 class="product-name"><a asp-action="Display" asp-route-id="@product.Id">@product.Name</a></h3>
+                            <p class="product-description-short">@product.Description</p>
+                            
+                            <div class="product-footer-row mt-3">
+                                <span class="product-price">@string.Format("{0:N0}", product.Price) <span class="currency">đ</span></span>
+                                @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                                {
+                                    <div class="product-actions-btn-group">
+                                        <a asp-action="Update" asp-route-id="@product.Id" class="btn-action-icon edit" title="Sửa"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@product.Id" class="btn-action-icon delete" title="Xóa"><i class="bi bi-trash3"></i></a>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="row g-2 mt-2">
+                                <div class="col-6">
+                                    <a asp-controller="Order" asp-action="Checkout" asp-route-productId="@product.Id"
+                                       class="btn-buy-now w-100 d-block text-center text-decoration-none py-2 px-1 text-nowrap" style="font-size: 0.85rem;">
+                                        <i class="bi bi-bag-heart-fill me-1"></i>Mua ngay
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                        <input type="hidden" name="productId" value="@product.Id" />
+                                        <input type="hidden" name="quantity" value="1" />
+                                        <button type="submit" class="btn-buy-now w-100 d-block text-center text-decoration-none py-2 px-1 text-nowrap" style="background-color: #f6ebe6; color: #8d5b4c; border: 1px solid #ebdcd5; font-size: 0.85rem;">
+                                            <i class="bi bi-bag-plus-fill me-1"></i>Thêm giỏ
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

@@ -1,0 +1,243 @@
+@model Webbanhang_TH02.Models.Order
+@{
+    ViewData["Title"] = "Đặt hàng";
+    var product = ViewBag.Product as Webbanhang_TH02.Models.Product;
+    var categoryName = ViewBag.CategoryName as string ?? "Mỹ phẩm";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb breadcrumb-luxury">
+                    <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Cửa hàng</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Display" asp-route-id="@product?.Id">@product?.Name</a></li>
+                    <li class="breadcrumb-item active">Đặt hàng</li>
+                </ol>
+            </nav>
+
+            <h2 class="checkout-page-title mb-4"><i class="bi bi-bag-heart me-2"></i>Thông tin đặt hàng</h2>
+
+            <form asp-action="Checkout" asp-controller="Order" method="post" id="checkoutForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ProductId" />
+
+                <div class="row g-4">
+
+                    <!-- LEFT: Customer Info -->
+                    <div class="col-lg-7">
+                        <div class="form-card-luxury">
+                            <h5 class="checkout-section-title mb-4"><i class="bi bi-person-circle me-2"></i>Thông tin người nhận hàng</h5>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-group-luxury">
+                                        <label asp-for="CustomerName" class="form-label-luxury"></label>
+                                        <input asp-for="CustomerName" class="form-control-luxury" placeholder="Nhập họ và tên đầy đủ..." />
+                                        <span asp-validation-for="CustomerName" class="text-danger-luxury"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group-luxury">
+                                        <label asp-for="Phone" class="form-label-luxury"></label>
+                                        <input asp-for="Phone" class="form-control-luxury" placeholder="Ví dụ: 0901234567" type="tel" />
+                                        <span asp-validation-for="Phone" class="text-danger-luxury"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group-luxury">
+                                        <label asp-for="Email" class="form-label-luxury"></label>
+                                        <input asp-for="Email" class="form-control-luxury" placeholder="email@example.com" type="email" />
+                                        <span asp-validation-for="Email" class="text-danger-luxury"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group-luxury">
+                                        <label asp-for="Address" class="form-label-luxury"></label>
+                                        <input asp-for="Address" class="form-control-luxury" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố..." />
+                                        <span asp-validation-for="Address" class="text-danger-luxury"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group-luxury">
+                                        <label asp-for="Note" class="form-label-luxury"></label>
+                                        <textarea asp-for="Note" class="form-control-luxury" rows="3" placeholder="Ghi chú cho người giao hàng (không bắt buộc)..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <h5 class="checkout-section-title mt-4 mb-3"><i class="bi bi-credit-card me-2"></i>Phương thức thanh toán</h5>
+                            <div class="payment-method-group">
+                                <label class="payment-option" id="label-cod">
+                                    <input type="radio" asp-for="PaymentMethod" value="cod" checked id="pay-cod" />
+                                    <div class="payment-option-body">
+                                        <i class="bi bi-cash-coin payment-icon"></i>
+                                        <div>
+                                            <strong>Thanh toán khi nhận hàng</strong>
+                                            <span class="d-block text-muted small">Trả tiền mặt khi nhận được hàng (COD)</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="payment-option" id="label-transfer">
+                                    <input type="radio" asp-for="PaymentMethod" value="transfer" id="pay-transfer" />
+                                    <div class="payment-option-body">
+                                        <i class="bi bi-bank payment-icon"></i>
+                                        <div>
+                                            <strong>Chuyển khoản ngân hàng</strong>
+                                            <span class="d-block text-muted small">Chuyển khoản trước khi giao hàng</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="payment-option" id="label-ewallet">
+                                    <input type="radio" asp-for="PaymentMethod" value="ewallet" id="pay-ewallet" />
+                                    <div class="payment-option-body">
+                                        <i class="bi bi-phone payment-icon"></i>
+                                        <div>
+                                            <strong>Ví điện tử (Momo / ZaloPay)</strong>
+                                            <span class="d-block text-muted small">Thanh toán nhanh bằng ví điện tử</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Order Summary -->
+                    <div class="col-lg-5">
+                        <div class="order-summary-card">
+                            <h5 class="checkout-section-title mb-4"><i class="bi bi-receipt me-2"></i>Đơn hàng của bạn</h5>
+
+                            @if (product != null)
+                            {
+                                <div class="order-product-preview mb-4">
+                                    <img src="@product.ImageUrl" alt="@product.Name" class="order-product-img"
+                                         onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                                    <div class="order-product-info">
+                                        <span class="order-product-brand">@product.Brand</span>
+                                        <strong class="order-product-name">@product.Name</strong>
+                                        <span class="order-product-category">@categoryName</span>
+                                    </div>
+                                </div>
+
+                                <!-- Quantity -->
+                                <div class="quantity-selector mb-4">
+                                    <label class="form-label-luxury d-block mb-2">SỐ LƯỢNG</label>
+                                    <div class="qty-wrapper">
+                                        <button type="button" class="qty-btn" id="qtyMinus"><i class="bi bi-dash"></i></button>
+                                        <input asp-for="Quantity" class="qty-input" id="qtyInput" min="1" max="99" />
+                                        <button type="button" class="qty-btn" id="qtyPlus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                    <span asp-validation-for="Quantity" class="text-danger-luxury"></span>
+                                </div>
+
+                                <div class="price-breakdown">
+                                    <div class="price-row">
+                                        <span>Giá sản phẩm</span>
+                                        <span id="unitPrice">@string.Format("{0:N0}", product.Price) đ</span>
+                                    </div>
+                                    <div class="price-row">
+                                        <span>Phí vận chuyển</span>
+                                        <span class="text-success fw-bold">Miễn phí</span>
+                                    </div>
+                                    <hr class="separator-luxury my-2" />
+                                    <div class="price-row price-total">
+                                        <strong>Tổng cộng</strong>
+                                        <strong class="total-amount" id="totalPrice">@string.Format("{0:N0}", product.Price) đ</strong>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    const unitPriceValue = @product.Price;
+                                    const qtyInput = document.getElementById('qtyInput');
+                                    const totalEl = document.getElementById('totalPrice');
+
+                                    function formatVND(n) {
+                                        return n.toLocaleString('vi-VN') + ' đ';
+                                    }
+                                    function updateTotal() {
+                                        const qty = parseInt(qtyInput.value) || 1;
+                                        totalEl.textContent = formatVND(unitPriceValue * qty);
+                                    }
+                                    document.getElementById('qtyPlus').addEventListener('click', function () {
+                                        let v = parseInt(qtyInput.value) || 1;
+                                        if (v < 99) { qtyInput.value = v + 1; updateTotal(); }
+                                    });
+                                    document.getElementById('qtyMinus').addEventListener('click', function () {
+                                        let v = parseInt(qtyInput.value) || 1;
+                                        if (v > 1) { qtyInput.value = v - 1; updateTotal(); }
+                                    });
+                                    qtyInput.addEventListener('input', updateTotal);
+                                </script>
+                            }
+                            else if (ViewBag.CartItems is IEnumerable<Webbanhang_TH02.Models.CartItem> cartItems && cartItems.Any())
+                            {
+                                <div style="max-height: 250px; overflow-y: auto; padding-right: 5px;" class="mb-3">
+                                    @foreach (var item in cartItems)
+                                    {
+                                        <div class="order-product-preview mb-3 pb-2" style="border-bottom: 1px dashed #ebdcd5;">
+                                            <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="order-product-img"
+                                                 onerror="this.src='/images/placeholder_cosmetics.jpg';" />
+                                            <div class="order-product-info">
+                                                <span class="order-product-brand">@item.Product.Brand</span>
+                                                <strong class="order-product-name" style="font-size: 0.95rem;">@item.Product.Name</strong>
+                                                <span class="text-muted small">Đơn giá: @string.Format("{0:N0}", item.Product.Price) đ x @item.Quantity</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="price-breakdown">
+                                    <div class="price-row">
+                                        <span>Giá sản phẩm (@cartItems.Sum(i => i.Quantity) sản phẩm)</span>
+                                        <span>@string.Format("{0:N0}", cartItems.Sum(i => i.Product.Price * i.Quantity)) đ</span>
+                                    </div>
+                                    <div class="price-row">
+                                        <span>Phí vận chuyển</span>
+                                        <span class="text-success fw-bold">Miễn phí</span>
+                                    </div>
+                                    <hr class="separator-luxury my-2" />
+                                    <div class="price-row price-total">
+                                        <strong>Tổng cộng</strong>
+                                        <strong class="total-amount">@string.Format("{0:N0}", cartItems.Sum(i => i.Product.Price * i.Quantity)) đ</strong>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Submit -->
+                            <button type="submit" class="btn-place-order mt-4">
+                                <i class="bi bi-check2-circle me-2"></i>Xác nhận đặt hàng
+                            </button>
+                            <a asp-controller="Product" asp-action="Index" class="btn-luxury-text d-block text-center mt-3">
+                                <i class="bi bi-arrow-left me-1"></i>Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Highlight selected payment option
+        document.querySelectorAll('.payment-option input[type=radio]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+                if (this.checked) this.closest('.payment-option').classList.add('selected');
+            });
+        });
+        // Pre-select COD on load
+        const codRadio = document.getElementById('pay-cod');
+        if (codRadio && codRadio.checked) codRadio.closest('.payment-option').classList.add('selected');
+    </script>
+}

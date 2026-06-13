@@ -1,0 +1,26 @@
+﻿@model Webbanhang_TH02.Models.Product
+
+@{
+    ViewData["Title"] = "Thông tin đặt hàng";
+}
+
+<div class="container mt-5 text-center" style="max-width: 600px;">
+    <h2 class="text-success mb-4">🛒 ĐƠN HÀNG CỦA BẠN</h2>
+    <div class="card shadow-sm p-4 mb-4">
+        <h4 class="text-secondary">Bạn đang đặt mua sản phẩm:</h4>
+        <h3 class="text-primary my-3">@Model?.Name</h3>
+        <p class="text-danger fs-4 fw-bold">Giá tiền: @Model?.Price.ToString("N0") đ</p>
+    </div>
+
+    <form class="text-start">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Họ và tên người nhận</label>
+            <input type="text" class="form-control" placeholder="Nhập tên của bạn..." required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Số điện thoại</label>
+            <input type="tel" class="form-control" placeholder="Nhập số điện thoại..." required>
+        </div>
+        <button type="submit" class="btn btn-success w-100 py-2 fs-5">Xác nhận thanh toán</button>
+    </form>
+</div>
